@@ -3,8 +3,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    static ArrayList<Double> equationNumbers = new ArrayList<>();
-    static ArrayList<Character> operators = new ArrayList<>();
+    static ArrayList<EquationCharacter> equation = new ArrayList<>();
     static boolean isNegative;
     static String userinput = "";
     static int operatorcount = 0;
@@ -15,15 +14,14 @@ public class Main {
         System.out.println("Press e to exit.");
         System.out.println("Enter your equation below");
 
-
         while (!userinput.equals("e")) {
             userinput = getUserInput();
-            separateNumbers(userinput);
+            separateCharacters(userinput);
+  //          solveParenthesis();
             solveMultiplicationAndDivision();
-            solveAdditionAndSubtraction();
-            System.out.println(equationNumbers.get(0));
-            equationNumbers.clear();
-            operators.clear();
+            solveAdditionandSubtraction();
+            System.out.println(equation.get(0).symbol);
+            equation.clear();
         }
     }
 
@@ -34,106 +32,115 @@ public class Main {
         return input.next();
     }
 
+    public static void separateCharacters (String userinput){
+        for (int counter = 0; counter < userinput.length(); counter++) {
+            //if parenthesis is encountered, mark if open or close and position
+            if (userinput.charAt(counter) == '(' ){
+                Parenthesis p = new Parenthesis(counter, true, false);
+                equation.add(p);
 
-    public static void separateNumbers(String userinput){
-        String number = "";
-
-
-        for (int counter = 0; counter < userinput.length(); counter++){
-            //if parser encounters negative symbol and the following character. if any, is a digit, mark the upcoming number as negative
-            if (userinput.charAt(counter) == '-' && counter == 0)
-                isNegative = true;
-
-            //add number to variable to be converted to double format
-            if (userinput.charAt(counter) != '+' && userinput.charAt(counter) != '-' && userinput.charAt(counter) != '*' && userinput.charAt(counter) != '/') {
-                number = number + userinput.charAt(counter);
+            }
+            else if (userinput.charAt(counter) == ')') {
+                Parenthesis p = new Parenthesis(counter, false, true);
+                equation.add(p);
             }
 
-            //if negative has not been detected and the variable number is not empty
-            else if (!isNegative && !number.equals("")) {
-                operators.add(userinput.charAt(counter));
-                equationNumbers.add(Double.parseDouble(number));
-                number = "";
+            //if operator symbol is encountered, store character and position
+            else if (userinput.charAt(counter) == '+' || userinput.charAt(counter) == '-' || userinput.charAt(counter) == '*' || userinput.charAt(counter) == '/'){
+                //if the '-' is referring to a negative dumber, mark the upcoming number as negative
+                if ((counter == 0 && userinput.charAt(counter) == '-') || userinput.charAt(counter) == '-' && (userinput.charAt(counter - 1) == '+' || userinput.charAt(counter - 1) == '-' || userinput.charAt(counter - 1) == '*' || userinput.charAt(counter - 1) == '/')) {
+                    isNegative = true;
+                }
+                //otherwise, store the operator as normal
+                else {
+                    Operator o = new Operator(counter, String.valueOf(userinput.charAt(counter)));
+                    equation.add(o);
+                }
             }
 
-            //if negative has been detected and variable number is not empty
-            else if (isNegative && !number.equals("")){
-                operators.add(userinput.charAt(counter));
-                equationNumbers.add((Double.parseDouble(number)) * -1);
-                number = "";
-                isNegative = false;
-            }
+            //if a digit is encountered, store the number
+            else if (Character.isDigit(userinput.charAt(counter))){
+                StringBuilder toadd = new StringBuilder();
+                //Ensures completion of full number
+                for (int j = counter; j < userinput.length() && (Character.isDigit(userinput.charAt(j)) || userinput.charAt(j) == '.'); j++) {
+                   toadd.append(userinput.charAt(j));
+                   if (j < userinput.length() - 1 && (Character.isDigit(userinput.charAt(j + 1)) || userinput.charAt(j + 1) == '.'))
+                       counter++;
+                }
 
-            else if (userinput.charAt(counter) == '-')
-                isNegative = true;
-
-            //special case if the number is the last character in the string
-            if (counter == userinput.length() - 1){
-                if(isNegative) {
-                    equationNumbers.add(Double.parseDouble(number) * -1);
+                //if the number was marked as negative, adjust accordingly
+                if (isNegative) {
+                    EquationNumber e = new EquationNumber(counter, "-" + toadd);
+                    equation.add(e);
                     isNegative = false;
                 }
                 else {
-                    equationNumbers.add(Double.parseDouble(number));
+                    EquationNumber e = new EquationNumber(counter, toadd.toString());
+                    equation.add(e);
                 }
-                number = "";
             }
         }
-    }
-
-    public static void solveAdditionAndSubtraction(){
-        double combine;
-
-        //compare numbers against operators and solve accordingly
-        for (int i = 0; i < equationNumbers.size() - 1; i++){
-            if (operatorcount < operators.size() && operators.get(operatorcount) == '+'){
-                combine = equationNumbers.get(i) + equationNumbers.get(i + 1);
-                equationNumbers.set(i, combine);
-                equationNumbers.remove(i + 1);
-                i = -1;
-                operatorcount++;
-            }
-            else if (operatorcount < operators.size() && operators.get(operatorcount) == '-'){
-                combine = equationNumbers.get(i) - equationNumbers.get(i + 1);
-                equationNumbers.set(i, combine);
-                equationNumbers.remove(i + 1);
-                i = -1;
-                operatorcount++;
-            }
-        }
-        operatorcount = 0;
     }
 
     public static void solveMultiplicationAndDivision(){
         double combine;
 
-        //compare numbers against operators and solve accordingly
-        for (int i = 0; i < equationNumbers.size() - 1; i++){
-            if (operatorcount < operators.size() && operators.get(operatorcount) == '*'){
-                combine = equationNumbers.get(i) * equationNumbers.get(i + 1);
-                equationNumbers.set(i, combine);
-                equationNumbers.remove(i + 1);
+        for (int i = 0; i < equation.size(); i++){
+            //multiply numbers if multiplication symbol is encountered
+            if (equation.get(i).symbol.equals("*") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) * Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
                 i = -1;
-                operatorcount++;
             }
-            else if (operatorcount < operators.size() && operators.get(operatorcount) == '/'){
-                combine = equationNumbers.get(i) / equationNumbers.get(i + 1);
-                equationNumbers.set(i, combine);
-                equationNumbers.remove(i + 1);
-                i = -1;
-                operatorcount++;
-            }
-            else
-                operatorcount++;
-        }
 
-         //clear used operators since multiplication and division runs first
-        for (int j = 0; j <= operatorcount && j < operators.size(); j++){
-            if (operators.get(j) == '*' || operators.get(j) == '/')
-                operators.remove(j);
+            else if (equation.get(i).symbol.equals("/") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) / Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                i = -1;
+            }
         }
-        operatorcount = 0;
     }
 
-    //parse for parenthesis, store values of parenthesis location in string, solve within parenthesis first
+    public static void solveAdditionandSubtraction(){
+        double combine;
+
+        for (int i = 0; i < equation.size(); i++){
+            //multiply numbers if multiplication symbol is encountered
+            if (equation.get(i).symbol.equals("+") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) + Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                i = -1;
+            }
+
+            else if (equation.get(i).symbol.equals("-") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) - Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                i = -1;
+            }
+        }
+    }
 }
