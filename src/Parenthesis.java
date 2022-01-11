@@ -7,6 +7,11 @@ public class Parenthesis extends EquationCharacter{
         position = positions;
         begin = begins;
         end = ends;
+
+        if (begin)
+            symbol = "(";
+        else if (end)
+            symbol = ")";
     }
 
     public Parenthesis(){
@@ -15,7 +20,5 @@ public class Parenthesis extends EquationCharacter{
         end = false;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
+
 }

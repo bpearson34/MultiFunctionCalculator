@@ -8,7 +8,5 @@ public class EquationNumber extends EquationCharacter{
 
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
+
 }

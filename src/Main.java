@@ -10,14 +10,14 @@ public class Main {
 
     public static void main (String [] args){
         //Opening text for user to see
-        System.out.println("Calculator Version 2.0");
+        System.out.println("Calculator Version 3.0");
         System.out.println("Press e to exit.");
         System.out.println("Enter your equation below");
 
         while (!userinput.equals("e")) {
             userinput = getUserInput();
             separateCharacters(userinput);
-  //          solveParenthesis();
+            solveParenthesis();
             solveMultiplicationAndDivision();
             solveAdditionandSubtraction();
             System.out.println(equation.get(0).symbol);
@@ -48,7 +48,7 @@ public class Main {
             //if operator symbol is encountered, store character and position
             else if (userinput.charAt(counter) == '+' || userinput.charAt(counter) == '-' || userinput.charAt(counter) == '*' || userinput.charAt(counter) == '/'){
                 //if the '-' is referring to a negative dumber, mark the upcoming number as negative
-                if ((counter == 0 && userinput.charAt(counter) == '-') || userinput.charAt(counter) == '-' && (userinput.charAt(counter - 1) == '+' || userinput.charAt(counter - 1) == '-' || userinput.charAt(counter - 1) == '*' || userinput.charAt(counter - 1) == '/')) {
+                if ((counter == 0 && userinput.charAt(counter) == '-') || userinput.charAt(counter) == '-' && (userinput.charAt(counter - 1) == '+' || userinput.charAt(counter - 1) == '-' || userinput.charAt(counter - 1) == '*' || userinput.charAt(counter - 1) == '/' || userinput.charAt(counter - 1) == '(')) {
                     isNegative = true;
                 }
                 //otherwise, store the operator as normal
@@ -141,6 +141,121 @@ public class Main {
                 equation.add(i - 1, e);
                 i = -1;
             }
+        }
+    }
+
+    public static void solveParenthesis(){
+        int start = -1, end = -1;
+        for (int i = 0; i < equation.size(); i++){
+            if (equation.get(i).symbol.equals("(")){
+                start = equation.get(i).position;
+            }
+            else if (equation.get(i).symbol.equals(")")) {
+                end = equation.get(i).position;
+            }
+
+            if (start > -1 && (end > -1 && end > start)) {
+                solveMultiplicationAndDivision(start, end);
+                solveAdditionandSubtraction(start, end);
+                start = -1;
+                end = -1;
+                i = -1;
+            }
+        }
+    }
+
+    public static void solveMultiplicationAndDivision(int start, int end){
+        double combine;
+
+        for (int i = start; i < end && i < equation.size(); i++){
+            //multiply numbers if multiplication symbol is encountered
+            if (equation.get(i).symbol.equals("*") && equation.get(i).position < end){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) * Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                sortPositions();
+                for (int j = 0; j < equation.size(); j++) {
+                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                        equation.remove(j + 2);
+                        equation.remove(j);
+                    }
+                }
+            }
+
+            else if (equation.get(i).symbol.equals("/") && equation.get(i).position < end){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) / Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                sortPositions();
+                for (int j = 0; j < equation.size(); j++) {
+                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                        equation.remove(j + 2);
+                        equation.remove(j);
+                    }
+                }
+            }
+        }
+
+    }
+
+    public static void solveAdditionandSubtraction(int start, int end){
+        double combine;
+
+        for (int i = start; i < end && i < equation.size(); i++){
+            //multiply numbers if multiplication symbol is encountered
+            if (equation.get(i).symbol.equals("+") && equation.get(i).position < end){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) + Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                sortPositions();
+                //clear parenthesis if there are no more applicable operations
+                for (int j = 0; j < equation.size(); j++) {
+                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                        equation.remove(j + 2);
+                        equation.remove(j);
+                    }
+                }
+            }
+
+            else if (equation.get(i).symbol.equals("-") && equation.get(i).position < end && equation.get(i + 1).symbol != "("){
+                combine = Double.parseDouble(equation.get(i - 1).symbol) - Double.parseDouble(equation.get(i + 1).symbol);
+                EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
+                int run = 0;
+                while (run != 3){
+                    equation.remove(i - 1);
+                    run++;
+                }
+                equation.add(i - 1, e);
+                for (int j = 0; j < equation.size(); j++) {
+                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                        equation.remove(j + 2);
+                        equation.remove(j);
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    public static void sortPositions() {
+        for (int i = 0; i < equation.size(); i++){
+            equation.get(i).setPosition(i);
         }
     }
 }

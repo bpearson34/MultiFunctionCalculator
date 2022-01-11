@@ -5,7 +5,5 @@ public class Operator extends EquationCharacter{
         symbol = symbols;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
+
 }
