@@ -47,7 +47,7 @@ public class Main {
 
             //if operator symbol is encountered, store character and position
             else if (userinput.charAt(counter) == '+' || userinput.charAt(counter) == '-' || userinput.charAt(counter) == '*' || userinput.charAt(counter) == '/'){
-                //if the '-' is referring to a negative dumber, mark the upcoming number as negative
+                //if the '-' is referring to a negative number, mark the upcoming number as negative
                 if ((counter == 0 && userinput.charAt(counter) == '-') || userinput.charAt(counter) == '-' && (userinput.charAt(counter - 1) == '+' || userinput.charAt(counter - 1) == '-' || userinput.charAt(counter - 1) == '*' || userinput.charAt(counter - 1) == '/' || userinput.charAt(counter - 1) == '(')) {
                     isNegative = true;
                 }
