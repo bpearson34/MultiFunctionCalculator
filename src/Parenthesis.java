@@ -1,24 +1,19 @@
 public class Parenthesis extends EquationCharacter{
 
-    boolean begin;
-    boolean end;
+    private final boolean BEGIN;
+    private final boolean END;
 
     public Parenthesis(int positions, boolean begins, boolean ends){
-        position = positions;
-        begin = begins;
-        end = ends;
+        setPosition(positions);
+        BEGIN = begins;
+        END = ends;
 
-        if (begin)
-            symbol = "(";
-        else if (end)
-            symbol = ")";
+        if (BEGIN)
+            setSymbol("(");
+        else if (END)
+            setSymbol(")");
     }
 
-    public Parenthesis(){
-        position = -1;
-        begin = false;
-        end = false;
-    }
 
 
 }

@@ -5,8 +5,8 @@ public class Main {
 
     static ArrayList<EquationCharacter> equation = new ArrayList<>();
     static boolean isNegative;
-    static String userinput = "";
-    static int operatorcount = 0;
+    static String userInput = "";
+    static int operatorPosition = 0;
 
     public static void main (String [] args){
         //Opening text for user to see
@@ -14,13 +14,13 @@ public class Main {
         System.out.println("Press e to exit.");
         System.out.println("Enter your equation below");
 
-        while (!userinput.equals("e")) {
-            userinput = getUserInput();
-            separateCharacters(userinput);
+        while (!userInput.equals("e")) {
+            userInput = getUserInput();
+            separateCharacters(userInput);
             solveParenthesis();
             solveMultiplicationAndDivision();
             solveAdditionandSubtraction();
-            System.out.println(equation.get(0).symbol);
+            System.out.println(equation.get(0).getSymbol());
             equation.clear();
         }
     }
@@ -87,8 +87,8 @@ public class Main {
 
         for (int i = 0; i < equation.size(); i++){
             //multiply numbers if multiplication symbol is encountered
-            if (equation.get(i).symbol.equals("*") && i < equation.size() - 1){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) * Double.parseDouble(equation.get(i + 1).symbol);
+            if (equation.get(i).getSymbol().equals("*") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) * Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -99,8 +99,8 @@ public class Main {
                 i = -1;
             }
 
-            else if (equation.get(i).symbol.equals("/") && i < equation.size() - 1){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) / Double.parseDouble(equation.get(i + 1).symbol);
+            else if (equation.get(i).getSymbol().equals("/") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) / Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -111,6 +111,7 @@ public class Main {
                 i = -1;
             }
         }
+        removeParenthesis();
     }
 
     public static void solveAdditionandSubtraction(){
@@ -118,8 +119,8 @@ public class Main {
 
         for (int i = 0; i < equation.size(); i++){
             //multiply numbers if multiplication symbol is encountered
-            if (equation.get(i).symbol.equals("+") && i < equation.size() - 1){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) + Double.parseDouble(equation.get(i + 1).symbol);
+            if (equation.get(i).getSymbol().equals("+") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) + Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -130,8 +131,8 @@ public class Main {
                 i = -1;
             }
 
-            else if (equation.get(i).symbol.equals("-") && i < equation.size() - 1){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) - Double.parseDouble(equation.get(i + 1).symbol);
+            else if (equation.get(i).getSymbol().equals("-") && i < equation.size() - 1){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) - Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -147,11 +148,11 @@ public class Main {
     public static void solveParenthesis(){
         int start = -1, end = -1;
         for (int i = 0; i < equation.size(); i++){
-            if (equation.get(i).symbol.equals("(")){
-                start = equation.get(i).position;
+            if (equation.get(i).getSymbol().equals("(")){
+                start = equation.get(i).getPosition();
             }
-            else if (equation.get(i).symbol.equals(")")) {
-                end = equation.get(i).position;
+            else if (equation.get(i).getSymbol().equals(")")) {
+                end = equation.get(i).getPosition();
             }
 
             if (start > -1 && (end > -1 && end > start)) {
@@ -164,13 +165,14 @@ public class Main {
         }
     }
 
+    //solves multiplication and divison within parenthesis with their position marked by start and end variable
     public static void solveMultiplicationAndDivision(int start, int end){
         double combine;
 
         for (int i = start; i < end && i < equation.size(); i++){
             //multiply numbers if multiplication symbol is encountered
-            if (equation.get(i).symbol.equals("*") && equation.get(i).position < end){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) * Double.parseDouble(equation.get(i + 1).symbol);
+            if (equation.get(i).getSymbol().equals("*") && equation.get(i).getPosition() < end){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) * Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -180,15 +182,15 @@ public class Main {
                 equation.add(i - 1, e);
                 sortPositions();
                 for (int j = 0; j < equation.size(); j++) {
-                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                    if (equation.get(j).getSymbol().equals("(") && equation.get(j + 2).getSymbol().equals(")")){
                         equation.remove(j + 2);
                         equation.remove(j);
                     }
                 }
             }
 
-            else if (equation.get(i).symbol.equals("/") && equation.get(i).position < end){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) / Double.parseDouble(equation.get(i + 1).symbol);
+            else if (equation.get(i).getSymbol().equals("/") && equation.get(i).getPosition() < end){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) / Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -198,7 +200,7 @@ public class Main {
                 equation.add(i - 1, e);
                 sortPositions();
                 for (int j = 0; j < equation.size(); j++) {
-                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                    if (equation.get(j).getSymbol().equals("(") && equation.get(j + 2).getSymbol().equals(")")){
                         equation.remove(j + 2);
                         equation.remove(j);
                     }
@@ -208,13 +210,14 @@ public class Main {
 
     }
 
+    //solves multiplication and divison within parenthesis with their position marked by start and end variable
     public static void solveAdditionandSubtraction(int start, int end){
         double combine;
 
         for (int i = start; i < end && i < equation.size(); i++){
             //multiply numbers if multiplication symbol is encountered
-            if (equation.get(i).symbol.equals("+") && equation.get(i).position < end){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) + Double.parseDouble(equation.get(i + 1).symbol);
+            if (equation.get(i).getSymbol().equals("+") && equation.get(i).getPosition() < end){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) + Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -225,15 +228,15 @@ public class Main {
                 sortPositions();
                 //clear parenthesis if there are no more applicable operations
                 for (int j = 0; j < equation.size(); j++) {
-                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                    if (equation.get(j).getSymbol().equals("(") && equation.get(j + 2).getSymbol().equals(")")){
                         equation.remove(j + 2);
                         equation.remove(j);
                     }
                 }
             }
 
-            else if (equation.get(i).symbol.equals("-") && equation.get(i).position < end && equation.get(i + 1).symbol != "("){
-                combine = Double.parseDouble(equation.get(i - 1).symbol) - Double.parseDouble(equation.get(i + 1).symbol);
+            else if (equation.get(i).getSymbol().equals("-") && equation.get(i).getPosition() < end && equation.get(i + 1).getSymbol() != "("){
+                combine = Double.parseDouble(equation.get(i - 1).getSymbol()) - Double.parseDouble(equation.get(i + 1).getSymbol());
                 EquationNumber e = new EquationNumber(i - 1, String.valueOf(combine));
                 int run = 0;
                 while (run != 3){
@@ -242,7 +245,7 @@ public class Main {
                 }
                 equation.add(i - 1, e);
                 for (int j = 0; j < equation.size(); j++) {
-                    if (equation.get(j).symbol.equals("(") && equation.get(j + 2).symbol.equals(")")){
+                    if (equation.get(j).getSymbol().equals("(") && equation.get(j + 2).getSymbol().equals(")")){
                         equation.remove(j + 2);
                         equation.remove(j);
                     }
@@ -256,6 +259,16 @@ public class Main {
     public static void sortPositions() {
         for (int i = 0; i < equation.size(); i++){
             equation.get(i).setPosition(i);
+        }
+    }
+
+    //if parenthesis is no longer needed, remove them. Example: 45 + (65) = 45 + 65
+    public static void removeParenthesis(){
+        for (int i = 0; i < equation.size(); i++){
+            if (equation.get(i).getSymbol().equals("(") && equation.get(i + 2).getSymbol().equals(")")){
+                equation.remove(i + 2);
+                equation.remove(i);
+            }
         }
     }
 }
