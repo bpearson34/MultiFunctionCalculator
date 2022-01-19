@@ -1,10 +1,10 @@
 public class EquationNumber extends EquationCharacter{
 
-    private double number;
+    private final double NUMBER;
     public EquationNumber(int positions, String symbols){
         setPosition(positions);
         setSymbol(symbols);
-        number = Double.parseDouble(getSymbol());
+        NUMBER = Double.parseDouble(getSymbol());
 
     }
 
