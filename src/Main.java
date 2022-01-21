@@ -154,7 +154,11 @@ public class Main {
     public static void solveParenthesis(){
         int start = -1, end = -1;
         for (int i = 0; i < equation.size(); i++){
-            if (equation.get(i).getSymbol().equals("(")){
+            //removes parenthesis that are safe to be removed, Ex. (55)+8 = 55+8
+            if (equation.get(i).getSymbol().equals("(") && equation.get(i + 2).getSymbol().equals(")")){
+                removeParenthesis();
+            }
+            else if (equation.get(i).getSymbol().equals("(")){
                 start = equation.get(i).getPosition();
             }
             else if (equation.get(i).getSymbol().equals(")")) {
